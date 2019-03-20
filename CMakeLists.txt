@@ -369,3 +369,23 @@ install(FILES
   "${PROJECT_BINARY_DIR}/DarknetConfigVersion.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}"
 )
+
+
+# add new empty test
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
+add_executable(test_empty ${CMAKE_CURRENT_LIST_DIR}/examples/test_empty.cpp)
+set_target_properties(test_empty PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(test_empty PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include> $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src> $<INSTALL_INTERFACE:include>)
+if(OpenCV_FOUND)
+  target_link_libraries(test_empty PRIVATE ${OpenCV_LIBS})
+endif()
+target_link_libraries(test_empty PRIVATE darklib)
+install(TARGETS test_empty EXPORT DarknetTargets
+  RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+  LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
+  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}"
+  COMPONENT dev
+)
+

@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 
-$number_of_build_workers=8
+$number_of_build_workers=12
 #$shared_lib="-DBUILD_SHARED_LIBS:BOOL=ON"
 $force_using_include_libs=$false
 
@@ -85,19 +85,19 @@ if($my_cuda_compute_model) {
 }
 
 if ($vcpkg_path) {
-  # DEBUG
-  New-Item -Path .\build_win_debug -ItemType directory -Force
-  Set-Location build_win_debug
-  cmake -G "Visual Studio 15 2017" -T "host=x64" -A "x64" "-DCMAKE_TOOLCHAIN_FILE=$vcpkg_path\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=$vcpkg_triplet" "-DCMAKE_BUILD_TYPE=Debug" $shared_lib $additional_build_setup ..
-  cmake --build . --config Debug --parallel ${number_of_build_workers} --target install
-  Remove-Item DarknetConfig.cmake
-  Remove-Item DarknetConfigVersion.cmake
-  Set-Location ..
+#  # DEBUG
+#  New-Item -Path .\build_win_debug -ItemType directory -Force
+#  Set-Location build_win_debug
+#  cmake -G "Visual Studio 15 2017" -T "host=x64" -A "x64" "-DCMAKE_TOOLCHAIN_FILE=$vcpkg_path\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows" "-DCMAKE_BUILD_TYPE=Debug" $shared_lib $additional_build_setup ..
+#  cmake --build . --config Debug --parallel ${number_of_build_workers} --target install
+#  Remove-Item DarknetConfig.cmake
+#  Remove-Item DarknetConfigVersion.cmake
+#  Set-Location ..
 
   # RELEASE
   New-Item -Path .\build_win_release -ItemType directory -Force
   Set-Location build_win_release
-  cmake -G "Visual Studio 15 2017" -T "host=x64" -A "x64" "-DCMAKE_TOOLCHAIN_FILE=$vcpkg_path\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=$vcpkg_triplet" "-DCMAKE_BUILD_TYPE=Release" $shared_lib $additional_build_setup ..
+  cmake -G "Visual Studio 15 2017" -T "host=x64" -A "x64" "-DCMAKE_TOOLCHAIN_FILE=$vcpkg_path\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows" "-DCMAKE_BUILD_TYPE=Release" $shared_lib $additional_build_setup ..
   cmake --build . --config Release --parallel ${number_of_build_workers} --target install
   Remove-Item DarknetConfig.cmake
   Remove-Item DarknetConfigVersion.cmake
