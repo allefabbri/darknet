@@ -32,3 +32,6 @@ lib/
 include/
 share/
 
+darknet
+uselib
+uselib_track
