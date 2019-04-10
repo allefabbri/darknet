@@ -86,7 +86,7 @@ public:
 
     LIB_API void *get_cuda_context();
 
-    LIB_API bool send_json_http(std::vector<bbox_t> cur_bbox_vec, std::vector<std::string> obj_names, int frame_id, 
+    LIB_API bool send_json_http(std::vector<bbox_t> cur_bbox_vec, std::vector<std::string> obj_names, int frame_id,
         std::string filename = std::string(), int timeout = 400000, int port = 8070);
 
     std::vector<bbox_t> detect_resized(image_t img, int init_w, int init_h, float thresh = 0.2, bool use_mean = false)
@@ -94,6 +94,23 @@ public:
         if (img.data == NULL)
             throw std::runtime_error("Image is empty");
         auto detection_boxes = detect(img, thresh, use_mean);
+        float wk = (float)init_w / img.w, hk = (float)init_h / img.h;
+        for (auto &i : detection_boxes) i.x *= wk, i.w *= wk, i.y *= hk, i.h *= hk;
+        return detection_boxes;
+    }
+
+    std::vector<bbox_t> detect_resized_types(image_t img, int init_w, int init_h, const std::vector<int> &types_idx, float thresh = 0.2, bool use_mean = false)
+    {
+        if (img.data == NULL)
+            throw std::runtime_error("Image is empty");
+        auto detection_boxes = detect(img, thresh, use_mean);
+        for (auto it = detection_boxes.begin(); it != detection_boxes.end();)
+        {
+          if ( std::any_of(types_idx.begin(), types_idx.end(), [it](int idx){ return it->obj_id == idx; }) )
+            ++it;
+          else
+            it = detection_boxes.erase(it);
+        }
         float wk = (float)init_w / img.w, hk = (float)init_h / img.h;
         for (auto &i : detection_boxes) i.x *= wk, i.w *= wk, i.y *= hk, i.h *= hk;
         return detection_boxes;
@@ -435,7 +452,7 @@ public:
         else {
             std::cerr << " Warning: new_src_mat.channels() is not: 1, 3 or 4. It is = " << new_src_mat.channels() << " \n";
             return;
-        }        
+        }
         update_cur_bbox_vec(_cur_bbox_vec);
     }
 
@@ -649,7 +666,7 @@ public:
 };
 
 
-class track_kalman_t 
+class track_kalman_t
 {
     int track_id_counter;
     std::chrono::steady_clock::time_point global_last_time;
@@ -805,7 +822,7 @@ public:
 
 
     track_kalman_t(int _max_objects = 1000, int _min_frames = 3, float _max_dist = 40, cv::Size _img_size = cv::Size(10000, 10000)) :
-        max_objects(_max_objects), min_frames(_min_frames), max_dist(_max_dist), img_size(_img_size), 
+        max_objects(_max_objects), min_frames(_min_frames), max_dist(_max_dist), img_size(_img_size),
         track_id_counter(0)
     {
         kalman_vec.resize(max_objects);
@@ -875,7 +892,7 @@ public:
             busy_vec[tst.state_id] = true;
         }
         else {
-            //std::cerr << " Didn't find: obj_id = " << find_box.obj_id << ", x = " << find_box.x << ", y = " << find_box.y << 
+            //std::cerr << " Didn't find: obj_id = " << find_box.obj_id << ", x = " << find_box.x << ", y = " << find_box.y <<
             //    ", track_id_counter = " << track_id_counter << std::endl;
         }
 

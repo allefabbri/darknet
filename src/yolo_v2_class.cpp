@@ -264,7 +264,14 @@ LIB_API std::vector<bbox_t> Detector::detect(image_t img, float thresh, bool use
         memcpy(sized.data, im.data, im.w*im.h*im.c * sizeof(float));
     }
     else
-        sized = resize_image(im, net.w, net.h);
+    {
+#define ENABLE_LETTERBOX
+#ifdef ENABLE_LETTERBOX
+      sized = letterbox_image(im, net.w, net.h);
+#else
+      sized = resize_image(im, net.w, net.h);
+#endif
+    }
 
     layer l = net.layers[net.n - 1];
 
